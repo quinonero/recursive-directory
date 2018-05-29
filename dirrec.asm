@@ -21,6 +21,7 @@ root db "C:\Users\isador\Desktop\asm\projet\",0
 endpath db "\*", 0
 get db "%s %s",13,10,0
 gte db "%s",13,10,0
+gte2 db "2: %d",13,10,0
 dir db "<DIR> ",0
 file db "<FILE> ",0
 currentDir db ".",0
@@ -93,9 +94,27 @@ listDir PROC
 		cmp fileData.dwFileAttributes, 10h
 		jne next_file
 		
-		push offset root
+		
+		;push offset pathcpy
+
 		push offset pathcpy
-		call lstrcpy ; copy root path
+		call lstrlen
+		sub eax, 2
+		mov edx, eax
+		
+		;quand on delete ca boucle <- à fix
+		push eax
+		push offset gte2
+		call crt_printf
+		
+		
+	;	push offset root
+	;	push offset pathcpy
+	;	call lstrcpy ; copy root path
+
+		lea ecx, pathcpy
+		mov bl, 0h
+		mov [ecx+edx], bl
 		
 		push offset fileData.cFileName
 		push offset pathcpy
@@ -110,18 +129,16 @@ listDir PROC
 		call crt_printf
 		
 		
-		push offset pathcpy
 		push [ebp-4]
 		push fileData
 
 		call listDir
 		pop fileData
 		pop [ebp-4]
-		pop offset pathcpy
-				
-		push offset pathcpy
-		push offset gte
-		call crt_printf
+
+		;pop eax
+		;mov pathcpy, eax
+		
 		
 		next_file:
 		call displayFile
